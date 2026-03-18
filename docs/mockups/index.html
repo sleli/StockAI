@@ -1,0 +1,1191 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>StockAI Mockup</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap");
+
+      :root {
+        --paper: #f3ecdf;
+        --paper-strong: #e8dcc8;
+        --ink: #171410;
+        --muted: #695f54;
+        --line: rgba(23, 20, 16, 0.12);
+        --panel: rgba(255, 251, 245, 0.66);
+        --green: #12392c;
+        --green-soft: #d4e1d6;
+        --red: #a13d30;
+        --gold: #a67631;
+        --shadow: 0 22px 70px rgba(27, 21, 16, 0.14);
+        --radius-xl: 28px;
+        --radius-lg: 20px;
+        --radius-md: 16px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: "IBM Plex Sans", sans-serif;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at top left, rgba(166, 118, 49, 0.18), transparent 28%),
+          radial-gradient(circle at 85% 18%, rgba(18, 57, 44, 0.18), transparent 22%),
+          linear-gradient(135deg, #f8f2e8 0%, #efe6d8 52%, #e9ddcc 100%);
+        overflow-x: hidden;
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        opacity: 0.12;
+        background-image:
+          linear-gradient(rgba(23, 20, 16, 0.06) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(23, 20, 16, 0.06) 1px, transparent 1px);
+        background-size: 28px 28px;
+        mask-image: radial-gradient(circle at center, black 55%, transparent 100%);
+      }
+
+      body::after {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        opacity: 0.09;
+        background-image: radial-gradient(rgba(0, 0, 0, 0.9) 0.6px, transparent 0.6px);
+        background-size: 10px 10px;
+        mix-blend-mode: multiply;
+      }
+
+      .shell {
+        width: min(1340px, calc(100vw - 32px));
+        margin: 24px auto;
+        padding: 18px;
+        border: 1px solid rgba(23, 20, 16, 0.15);
+        border-radius: 34px;
+        background: linear-gradient(180deg, rgba(255, 250, 243, 0.74), rgba(242, 232, 219, 0.92));
+        box-shadow: var(--shadow);
+        position: relative;
+      }
+
+      .shell::before {
+        content: "";
+        position: absolute;
+        inset: 14px;
+        border: 1px solid rgba(23, 20, 16, 0.08);
+        border-radius: 24px;
+        pointer-events: none;
+      }
+
+      .ticker-bar {
+        display: flex;
+        gap: 28px;
+        overflow: hidden;
+        white-space: nowrap;
+        padding: 10px 14px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: rgba(255, 251, 245, 0.72);
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 13px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .ticker-track {
+        display: inline-flex;
+        gap: 28px;
+        min-width: max-content;
+        animation: slide 30s linear infinite;
+      }
+
+      .up { color: var(--green); }
+      .down { color: var(--red); }
+
+      .topbar,
+      .section-card,
+      .watchlist,
+      .detail-card,
+      .search-card,
+      .alert-card,
+      .insight-card,
+      .story-card {
+        opacity: 0;
+        transform: translateY(18px);
+        animation: rise 0.8s ease forwards;
+      }
+
+      .topbar {
+        margin-top: 18px;
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        gap: 18px;
+        animation-delay: 0.08s;
+      }
+
+      .section-card,
+      .watchlist,
+      .detail-card,
+      .search-card,
+      .alert-card,
+      .insight-card,
+      .story-card {
+        border: 1px solid var(--line);
+        background: var(--panel);
+        backdrop-filter: blur(18px);
+        border-radius: var(--radius-xl);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .top-left {
+        padding: 32px;
+        min-height: 320px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+
+      .eyebrow,
+      .meta,
+      .mini-label,
+      .status-pill,
+      .tag,
+      .period {
+        font-family: "IBM Plex Mono", monospace;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        font-size: 12px;
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--muted);
+      }
+
+      .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--green);
+        box-shadow: 0 0 0 8px rgba(18, 57, 44, 0.12);
+      }
+
+      h1,
+      h2,
+      h3,
+      .brand {
+        font-family: "Cormorant Garamond", serif;
+        margin: 0;
+        font-weight: 600;
+        line-height: 0.95;
+      }
+
+      .brand {
+        font-size: clamp(2.5rem, 4vw, 4.2rem);
+        letter-spacing: -0.04em;
+      }
+
+      .headline {
+        font-size: clamp(3.5rem, 7vw, 7rem);
+        max-width: 9ch;
+        letter-spacing: -0.05em;
+        margin-top: 14px;
+      }
+
+      .lead {
+        max-width: 56ch;
+        font-size: 1.05rem;
+        line-height: 1.75;
+        color: rgba(23, 20, 16, 0.78);
+      }
+
+      .hero-grid {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 24px;
+        align-items: end;
+      }
+
+      .metrics {
+        display: flex;
+        gap: 14px;
+        flex-wrap: wrap;
+      }
+
+      .metric {
+        padding: 14px 16px;
+        border-radius: var(--radius-md);
+        border: 1px solid var(--line);
+        background: rgba(255, 252, 247, 0.62);
+        min-width: 134px;
+      }
+
+      .metric strong {
+        display: block;
+        margin-top: 8px;
+        font-size: 1.4rem;
+        font-weight: 600;
+      }
+
+      .top-right {
+        padding: 22px;
+        background:
+          linear-gradient(160deg, rgba(18, 57, 44, 0.98), rgba(14, 30, 24, 0.92)),
+          linear-gradient(0deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.02));
+        color: #f3ecdf;
+        display: grid;
+        gap: 18px;
+      }
+
+      .top-right::before {
+        content: "";
+        position: absolute;
+        inset: auto -40px -60px auto;
+        width: 220px;
+        height: 220px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(166, 118, 49, 0.3), transparent 68%);
+      }
+
+      .market-meta {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        align-items: start;
+      }
+
+      .scoreboard {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+      }
+
+      .score {
+        padding: 16px;
+        border-radius: var(--radius-md);
+        background: rgba(243, 236, 223, 0.08);
+        border: 1px solid rgba(243, 236, 223, 0.1);
+      }
+
+      .score strong {
+        display: block;
+        margin-top: 12px;
+        font-size: 1.55rem;
+      }
+
+      .pulse-chart {
+        height: 132px;
+        border-radius: var(--radius-lg);
+        border: 1px solid rgba(243, 236, 223, 0.14);
+        background: linear-gradient(180deg, rgba(243, 236, 223, 0.05), rgba(243, 236, 223, 0.01));
+        padding: 14px;
+      }
+
+      .main-grid {
+        margin-top: 18px;
+        display: grid;
+        grid-template-columns: 0.95fr 1.05fr;
+        gap: 18px;
+      }
+
+      .watchlist {
+        padding: 22px;
+        animation-delay: 0.16s;
+      }
+
+      .section-head {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        align-items: end;
+        margin-bottom: 16px;
+      }
+
+      .section-head p,
+      .copy,
+      .story-copy,
+      .footnote {
+        margin: 0;
+        color: rgba(23, 20, 16, 0.68);
+        line-height: 1.6;
+      }
+
+      .watchlist-items {
+        display: grid;
+        gap: 12px;
+      }
+
+      .watch-item {
+        width: 100%;
+        border: 1px solid var(--line);
+        background: rgba(255, 251, 245, 0.76);
+        border-radius: 18px;
+        padding: 16px;
+        text-align: left;
+        cursor: pointer;
+        transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
+      }
+
+      .watch-item:hover,
+      .watch-item.active {
+        transform: translateY(-2px);
+        border-color: rgba(18, 57, 44, 0.35);
+        background: linear-gradient(180deg, rgba(18, 57, 44, 0.06), rgba(255, 251, 245, 0.92));
+      }
+
+      .watch-top,
+      .watch-bottom,
+      .chip-row,
+      .legend,
+      .form-row,
+      .alert-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        align-items: center;
+      }
+
+      .watch-top strong,
+      .detail-price,
+      .search-value,
+      .alert-threshold {
+        font-size: 1.35rem;
+        font-weight: 600;
+      }
+
+      .watch-name {
+        color: rgba(23, 20, 16, 0.64);
+        font-size: 0.94rem;
+      }
+
+      .watch-bottom {
+        margin-top: 12px;
+        font-size: 0.92rem;
+      }
+
+      .stale { color: var(--gold); }
+      .fresh { color: var(--green); }
+
+      .detail-stack {
+        display: grid;
+        gap: 18px;
+      }
+
+      .detail-card {
+        padding: 24px;
+        animation-delay: 0.22s;
+      }
+
+      .detail-header {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 16px;
+        align-items: end;
+      }
+
+      .detail-price {
+        font-size: clamp(2.8rem, 6vw, 5rem);
+        font-family: "Cormorant Garamond", serif;
+        line-height: 0.85;
+        margin-top: 10px;
+      }
+
+      .detail-grid {
+        margin-top: 18px;
+        display: grid;
+        grid-template-columns: 1.15fr 0.85fr;
+        gap: 16px;
+      }
+
+      .chart-shell,
+      .stats,
+      .search-card,
+      .alert-card,
+      .insight-card,
+      .story-card {
+        padding: 20px;
+      }
+
+      .chart-shell {
+        border: 1px solid var(--line);
+        border-radius: 24px;
+        background: linear-gradient(180deg, rgba(255, 251, 245, 0.9), rgba(232, 220, 200, 0.46));
+      }
+
+      .chart-area {
+        width: 100%;
+        height: 240px;
+        margin-top: 14px;
+      }
+
+      .stats {
+        border: 1px solid var(--line);
+        border-radius: 24px;
+        background: rgba(255, 251, 245, 0.8);
+        display: grid;
+        gap: 12px;
+      }
+
+      .stat {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .stat:last-child {
+        border-bottom: 0;
+        padding-bottom: 0;
+      }
+
+      .search-alert-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px;
+      }
+
+      .search-card { animation-delay: 0.28s; }
+      .alert-card { animation-delay: 0.34s; }
+      .insight-card { animation-delay: 0.4s; }
+      .story-card { animation-delay: 0.46s; }
+
+      input,
+      button {
+        font: inherit;
+      }
+
+      .search-input,
+      .alert-input {
+        width: 100%;
+        padding: 14px 16px;
+        border-radius: 16px;
+        border: 1px solid var(--line);
+        background: rgba(255, 252, 247, 0.92);
+        color: var(--ink);
+      }
+
+      .action {
+        border: 0;
+        border-radius: 16px;
+        padding: 14px 18px;
+        background: var(--green);
+        color: var(--paper);
+        cursor: pointer;
+        transition: transform 180ms ease, opacity 180ms ease;
+      }
+
+      .action:hover,
+      .chip:hover,
+      .period:hover {
+        transform: translateY(-1px);
+      }
+
+      .chip-row {
+        justify-content: flex-start;
+        flex-wrap: wrap;
+        margin-top: 16px;
+      }
+
+      .chip,
+      .period {
+        border: 1px solid var(--line);
+        background: rgba(255, 251, 245, 0.78);
+        color: var(--ink);
+        border-radius: 999px;
+        padding: 10px 14px;
+        cursor: pointer;
+      }
+
+      .chip.active,
+      .period.active {
+        background: var(--ink);
+        color: var(--paper);
+        border-color: var(--ink);
+      }
+
+      .search-result {
+        margin-top: 18px;
+        padding: 18px;
+        border-radius: 18px;
+        border: 1px dashed rgba(18, 57, 44, 0.28);
+        background: linear-gradient(180deg, rgba(18, 57, 44, 0.04), rgba(255, 251, 245, 0.8));
+      }
+
+      .alert-list {
+        display: grid;
+        gap: 12px;
+        margin-top: 18px;
+      }
+
+      .alert-row {
+        padding: 14px 16px;
+        border-radius: 18px;
+        border: 1px solid var(--line);
+        background: rgba(255, 251, 245, 0.78);
+        align-items: start;
+      }
+
+      .legend {
+        justify-content: flex-start;
+        flex-wrap: wrap;
+        margin-top: 14px;
+      }
+
+      .tag {
+        padding: 8px 10px;
+        border-radius: 999px;
+        border: 1px solid var(--line);
+      }
+
+      .story-card {
+        margin-top: 18px;
+        background:
+          linear-gradient(135deg, rgba(18, 57, 44, 0.96), rgba(20, 33, 28, 0.93)),
+          linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0));
+        color: var(--paper);
+      }
+
+      .story-copy,
+      .story-card .footnote,
+      .story-card .meta {
+        color: rgba(243, 236, 223, 0.75);
+      }
+
+      .story-grid {
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        gap: 22px;
+        align-items: start;
+      }
+
+      .quote {
+        font-family: "Cormorant Garamond", serif;
+        font-size: clamp(2rem, 4vw, 3.5rem);
+        line-height: 1;
+        letter-spacing: -0.04em;
+      }
+
+      .story-list {
+        display: grid;
+        gap: 12px;
+      }
+
+      .story-item {
+        padding: 14px 0;
+        border-top: 1px solid rgba(243, 236, 223, 0.16);
+      }
+
+      .footnote {
+        margin-top: 18px;
+        font-size: 0.92rem;
+      }
+
+      @keyframes slide {
+        from { transform: translateX(0); }
+        to { transform: translateX(-50%); }
+      }
+
+      @keyframes rise {
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @media (max-width: 1100px) {
+        .topbar,
+        .main-grid,
+        .detail-grid,
+        .search-alert-grid,
+        .story-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .hero-grid,
+        .detail-header {
+          grid-template-columns: 1fr;
+        }
+
+        .scoreboard {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+      }
+
+      @media (max-width: 720px) {
+        .shell {
+          width: min(100vw - 14px, 100%);
+          margin: 8px auto;
+          padding: 10px;
+          border-radius: 24px;
+        }
+
+        .top-left,
+        .top-right,
+        .watchlist,
+        .detail-card,
+        .search-card,
+        .alert-card,
+        .insight-card,
+        .story-card {
+          padding: 18px;
+        }
+
+        .headline {
+          font-size: clamp(2.8rem, 16vw, 4.4rem);
+        }
+
+        .scoreboard {
+          grid-template-columns: 1fr;
+        }
+
+        .ticker-bar {
+          font-size: 11px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="shell">
+      <div class="ticker-bar" aria-label="Live market tape demo">
+        <div class="ticker-track">
+          <span>AAPL <span class="up">+1.82%</span></span>
+          <span>NVDA <span class="up">+3.14%</span></span>
+          <span>MSFT <span class="up">+0.86%</span></span>
+          <span>TSLA <span class="down">-1.22%</span></span>
+          <span>QQQ <span class="up">+0.48%</span></span>
+          <span>AMD <span class="up">+2.11%</span></span>
+          <span>AAPL <span class="up">+1.82%</span></span>
+          <span>NVDA <span class="up">+3.14%</span></span>
+          <span>MSFT <span class="up">+0.86%</span></span>
+          <span>TSLA <span class="down">-1.22%</span></span>
+          <span>QQQ <span class="up">+0.48%</span></span>
+          <span>AMD <span class="up">+2.11%</span></span>
+        </div>
+      </div>
+
+      <section class="topbar">
+        <article class="section-card top-left">
+          <div>
+            <div class="eyebrow"><span class="dot"></span> StockAI / Calm market intelligence</div>
+            <h1 class="headline">Watch the market without the noise.</h1>
+            <p class="lead">
+              This concept turns a retail investor's daily check-in into a warm, legible ritual: your watchlist,
+              freshness of data, triggered alerts, and quick context all surfaced in one editorial dashboard.
+            </p>
+          </div>
+
+          <div class="hero-grid">
+            <div class="metrics">
+              <div class="metric">
+                <span class="mini-label">Refresh rhythm</span>
+                <strong>45s</strong>
+              </div>
+              <div class="metric">
+                <span class="mini-label">Tracked now</span>
+                <strong>12 symbols</strong>
+              </div>
+              <div class="metric">
+                <span class="mini-label">Alert discipline</span>
+                <strong>3 active</strong>
+              </div>
+            </div>
+            <div class="meta">For retail investors and finance learners</div>
+          </div>
+        </article>
+
+        <aside class="section-card top-right">
+          <div class="market-meta">
+            <div>
+              <div class="mini-label">Session health</div>
+              <div class="brand">Fresh data, explained.</div>
+            </div>
+            <span class="status-pill fresh">NASDAQ OPEN</span>
+          </div>
+
+          <div class="scoreboard">
+            <div class="score">
+              <div class="mini-label">Fresh</div>
+              <strong>08</strong>
+            </div>
+            <div class="score">
+              <div class="mini-label">Stale</div>
+              <strong>02</strong>
+            </div>
+            <div class="score">
+              <div class="mini-label">Alerts</div>
+              <strong>01 fired</strong>
+            </div>
+          </div>
+
+          <div class="pulse-chart">
+            <div class="mini-label">Market pulse</div>
+            <svg viewBox="0 0 320 100" width="100%" height="92" aria-hidden="true">
+              <defs>
+                <linearGradient id="pulseFill" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="rgba(212,225,214,0.5)" />
+                  <stop offset="100%" stop-color="rgba(212,225,214,0)" />
+                </linearGradient>
+              </defs>
+              <path d="M0,68 C20,60 30,42 45,44 C62,46 66,74 83,72 C102,70 104,28 128,30 C150,31 160,65 184,66 C204,67 213,49 226,43 C244,35 264,40 279,33 C292,27 302,16 320,19 L320,100 L0,100 Z" fill="url(#pulseFill)"></path>
+              <path d="M0,68 C20,60 30,42 45,44 C62,46 66,74 83,72 C102,70 104,28 128,30 C150,31 160,65 184,66 C204,67 213,49 226,43 C244,35 264,40 279,33 C292,27 302,16 320,19" fill="none" stroke="#f3ecdf" stroke-width="2.2" stroke-linecap="round"></path>
+            </svg>
+          </div>
+        </aside>
+      </section>
+
+      <section class="main-grid">
+        <article class="watchlist">
+          <div class="section-head">
+            <div>
+              <div class="mini-label">Personal watchlist</div>
+              <h2>See movement at a glance.</h2>
+            </div>
+            <p>Daily changes are visible first. Freshness and alerts stay impossible to miss.</p>
+          </div>
+          <div id="watchlist" class="watchlist-items"></div>
+        </article>
+
+        <div class="detail-stack">
+          <article class="detail-card">
+            <div class="detail-header">
+              <div>
+                <div id="detailSymbol" class="mini-label">NVDA / NASDAQ</div>
+                <h2 id="detailName">NVIDIA Corporation</h2>
+                <div id="detailPrice" class="detail-price">$948.32</div>
+              </div>
+              <div>
+                <div id="detailChange" class="search-value up">+3.14%</div>
+                <div id="detailUpdated" class="meta">Updated 12 seconds ago</div>
+              </div>
+            </div>
+
+            <div class="detail-grid">
+              <div class="chart-shell">
+                <div class="watch-top">
+                  <span class="mini-label">Short history</span>
+                  <div id="periods" class="chip-row" style="margin-top:0"></div>
+                </div>
+                <svg id="detailChart" class="chart-area" viewBox="0 0 700 240" preserveAspectRatio="none" aria-label="Price chart"></svg>
+              </div>
+              <div class="stats" id="detailStats"></div>
+            </div>
+          </article>
+
+          <div class="search-alert-grid">
+            <article class="search-card">
+              <div class="mini-label">Add a symbol</div>
+              <h3>Fast onboarding, zero clutter.</h3>
+              <p class="copy">A first-time user should build a meaningful watchlist in under two minutes.</p>
+              <div class="form-row" style="margin-top:16px; align-items:stretch;">
+                <input id="searchInput" class="search-input" type="text" placeholder="Try AVGO, META, or Broadcom" />
+                <button id="addButton" class="action">Add</button>
+              </div>
+              <div id="suggestions" class="chip-row"></div>
+              <div id="searchResult" class="search-result"></div>
+            </article>
+
+            <article class="alert-card">
+              <div class="mini-label">Alert logic</div>
+              <h3>Simple thresholds, calm confidence.</h3>
+              <p class="copy">The tone stays lightweight: users do not trade here, they notice and decide.</p>
+              <div class="form-row" style="margin-top:16px; align-items:stretch;">
+                <input id="alertInput" class="alert-input" type="number" step="0.01" placeholder="Enter threshold" />
+                <button id="alertButton" class="action">Create</button>
+              </div>
+              <div class="legend">
+                <span class="tag fresh">fresh</span>
+                <span class="tag stale">stale</span>
+                <span class="tag down">triggered</span>
+                <span class="tag">market closed</span>
+              </div>
+              <div id="alertList" class="alert-list"></div>
+            </article>
+          </div>
+
+          <article class="insight-card">
+            <div class="section-head">
+              <div>
+                <div class="mini-label">Why this works</div>
+                <h3>An editorial terminal for everyday investors.</h3>
+              </div>
+            </div>
+            <p class="copy">
+              The memorable gesture is the contrast between warm financial-journal typography and sharp exchange-board data modules.
+              It feels trustworthy, quieter than trading software, and more intentional than an ad-heavy finance portal.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="story-card">
+        <div class="story-grid">
+          <div>
+            <div class="mini-label">User scenario</div>
+            <div class="quote">"I open it before the bell, see what changed, and understand whether the number is fresh enough to trust."</div>
+            <p class="story-copy">
+              Marco checks from his phone during the commute. Giulia opens the same dashboard later on a laptop to compare movements and study a stock's short history.
+              Both need confidence, not complexity.
+            </p>
+          </div>
+          <div class="story-list">
+            <div class="story-item">
+              <div class="mini-label">MVP represented</div>
+              <div class="story-copy">Watchlist, search, current price, change, freshness states, short history, and alert thresholds.</div>
+            </div>
+            <div class="story-item">
+              <div class="mini-label">Constraint respected</div>
+              <div class="story-copy">The interface assumes near-real-time free APIs and keeps timestamps visible to manage expectations.</div>
+            </div>
+            <div class="story-item">
+              <div class="mini-label">Design direction</div>
+              <div class="story-copy">Financial broadsheet meets calm terminal: warm paper, ink, deep green, and red reserved for risk.</div>
+            </div>
+          </div>
+        </div>
+        <div class="footnote">Mockup concept for `StockAI` based on `docs/PRD.md`.</div>
+      </section>
+    </main>
+
+    <script>
+      const stocks = [
+        {
+          symbol: "NVDA",
+          name: "NVIDIA Corporation",
+          market: "NASDAQ",
+          price: 948.32,
+          change: 3.14,
+          freshness: "fresh",
+          updated: "12 seconds ago",
+          high: 956.4,
+          low: 921.18,
+          volume: "39.2M",
+          status: "Open",
+          series: {
+            "1D": [64, 63, 67, 70, 72, 69, 75, 77, 74, 78, 84, 90],
+            "1W": [46, 48, 51, 55, 53, 57, 60, 65, 69, 72, 76, 80],
+            "1M": [24, 28, 26, 34, 38, 36, 41, 49, 55, 61, 67, 75],
+          },
+        },
+        {
+          symbol: "AAPL",
+          name: "Apple Inc.",
+          market: "NASDAQ",
+          price: 213.42,
+          change: 1.82,
+          freshness: "fresh",
+          updated: "19 seconds ago",
+          high: 214.06,
+          low: 208.92,
+          volume: "58.7M",
+          status: "Open",
+          series: {
+            "1D": [50, 52, 51, 53, 57, 56, 58, 62, 61, 64, 67, 71],
+            "1W": [39, 40, 44, 42, 46, 48, 49, 53, 55, 57, 60, 63],
+            "1M": [28, 29, 31, 35, 34, 37, 39, 42, 45, 49, 52, 58],
+          },
+        },
+        {
+          symbol: "MSFT",
+          name: "Microsoft Corp.",
+          market: "NASDAQ",
+          price: 426.17,
+          change: 0.86,
+          freshness: "fresh",
+          updated: "33 seconds ago",
+          high: 427.84,
+          low: 421.93,
+          volume: "21.1M",
+          status: "Open",
+          series: {
+            "1D": [42, 43, 44, 43, 45, 46, 47, 48, 49, 51, 50, 54],
+            "1W": [36, 37, 39, 40, 39, 41, 43, 45, 46, 47, 49, 50],
+            "1M": [24, 26, 29, 31, 30, 34, 37, 38, 42, 44, 45, 49],
+          },
+        },
+        {
+          symbol: "TSLA",
+          name: "Tesla, Inc.",
+          market: "NASDAQ",
+          price: 172.9,
+          change: -1.22,
+          freshness: "stale",
+          updated: "2 min ago",
+          high: 175.44,
+          low: 170.71,
+          volume: "67.4M",
+          status: "Open",
+          series: {
+            "1D": [64, 65, 63, 60, 59, 58, 55, 57, 53, 51, 49, 48],
+            "1W": [72, 70, 69, 67, 64, 63, 60, 58, 56, 54, 53, 51],
+            "1M": [86, 82, 79, 75, 71, 69, 65, 62, 59, 56, 53, 50],
+          },
+        },
+      ];
+
+      const suggestions = [
+        { symbol: "AVGO", name: "Broadcom Inc.", market: "NASDAQ", price: 1388.21 },
+        { symbol: "META", name: "Meta Platforms", market: "NASDAQ", price: 503.66 },
+        { symbol: "AMZN", name: "Amazon.com, Inc.", market: "NASDAQ", price: 182.14 },
+      ];
+
+      const periods = ["1D", "1W", "1M"];
+      let selectedSymbol = "NVDA";
+      let selectedPeriod = "1D";
+      const alerts = [
+        { symbol: "NVDA", direction: "above", threshold: 950, state: "armed" },
+        { symbol: "TSLA", direction: "below", threshold: 170, state: "watching" },
+      ];
+
+      const formatMoney = (value) =>
+        new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(value);
+
+      const getStock = (symbol) => stocks.find((stock) => stock.symbol === symbol);
+
+      function renderWatchlist() {
+        const root = document.getElementById("watchlist");
+        root.innerHTML = "";
+
+        stocks.forEach((stock) => {
+          const button = document.createElement("button");
+          button.className = `watch-item ${stock.symbol === selectedSymbol ? "active" : ""}`;
+          button.type = "button";
+          button.innerHTML = `
+            <div class="watch-top">
+              <div>
+                <strong>${stock.symbol}</strong>
+                <div class="watch-name">${stock.name}</div>
+              </div>
+              <div class="${stock.change >= 0 ? "up" : "down"}">${stock.change >= 0 ? "+" : ""}${stock.change.toFixed(2)}%</div>
+            </div>
+            <div class="watch-bottom">
+              <span>${formatMoney(stock.price)}</span>
+              <span class="${stock.freshness}">${stock.freshness} / ${stock.updated}</span>
+            </div>
+          `;
+          button.addEventListener("click", () => {
+            selectedSymbol = stock.symbol;
+            renderWatchlist();
+            renderDetail();
+            renderAlerts();
+          });
+          root.appendChild(button);
+        });
+      }
+
+      function linePath(values, width, height, padding) {
+        const max = Math.max(...values);
+        const min = Math.min(...values);
+        const range = max - min || 1;
+        return values
+          .map((value, index) => {
+            const x = padding + (index * (width - padding * 2)) / (values.length - 1);
+            const y = height - padding - ((value - min) / range) * (height - padding * 2);
+            return `${index === 0 ? "M" : "L"}${x},${y}`;
+          })
+          .join(" ");
+      }
+
+      function areaPath(values, width, height, padding) {
+        const line = linePath(values, width, height, padding);
+        return `${line} L${width - padding},${height - padding} L${padding},${height - padding} Z`;
+      }
+
+      function renderDetail() {
+        const stock = getStock(selectedSymbol);
+        document.getElementById("detailSymbol").textContent = `${stock.symbol} / ${stock.market}`;
+        document.getElementById("detailName").textContent = stock.name;
+        document.getElementById("detailPrice").textContent = formatMoney(stock.price);
+
+        const changeEl = document.getElementById("detailChange");
+        changeEl.textContent = `${stock.change >= 0 ? "+" : ""}${stock.change.toFixed(2)}%`;
+        changeEl.className = `search-value ${stock.change >= 0 ? "up" : "down"}`;
+        document.getElementById("detailUpdated").textContent = `Updated ${stock.updated}`;
+
+        const stats = [
+          ["Data state", stock.freshness],
+          ["Day high", formatMoney(stock.high)],
+          ["Day low", formatMoney(stock.low)],
+          ["Volume", stock.volume],
+          ["Session", stock.status],
+        ];
+        document.getElementById("detailStats").innerHTML = stats
+          .map(
+            ([label, value]) => `<div class="stat"><span class="meta">${label}</span><strong>${value}</strong></div>`
+          )
+          .join("");
+
+        const periodRoot = document.getElementById("periods");
+        periodRoot.innerHTML = "";
+        periods.forEach((period) => {
+          const chip = document.createElement("button");
+          chip.type = "button";
+          chip.className = `period ${period === selectedPeriod ? "active" : ""}`;
+          chip.textContent = period;
+          chip.addEventListener("click", () => {
+            selectedPeriod = period;
+            renderDetail();
+          });
+          periodRoot.appendChild(chip);
+        });
+
+        const values = stock.series[selectedPeriod];
+        const chart = document.getElementById("detailChart");
+        const stroke = stock.change >= 0 ? "#12392c" : "#a13d30";
+        chart.innerHTML = `
+          <defs>
+            <linearGradient id="chartFill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="${stock.change >= 0 ? "rgba(18,57,44,0.24)" : "rgba(161,61,48,0.24)"}" />
+              <stop offset="100%" stop-color="rgba(255,255,255,0)" />
+            </linearGradient>
+          </defs>
+          <g>
+            ${[1, 2, 3, 4].map((i) => `<line x1="28" y1="${i * 44}" x2="672" y2="${i * 44}" stroke="rgba(23,20,16,0.08)" stroke-dasharray="4 8" />`).join("")}
+            <path d="${areaPath(values, 700, 240, 28)}" fill="url(#chartFill)"></path>
+            <path d="${linePath(values, 700, 240, 28)}" fill="none" stroke="${stroke}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path>
+          </g>
+        `;
+      }
+
+      function renderSuggestions() {
+        const root = document.getElementById("suggestions");
+        root.innerHTML = "";
+        suggestions.forEach((item) => {
+          const chip = document.createElement("button");
+          chip.type = "button";
+          chip.className = "chip";
+          chip.textContent = item.symbol;
+          chip.addEventListener("click", () => {
+            document.getElementById("searchInput").value = item.symbol;
+            updateSearchPreview(item.symbol);
+          });
+          root.appendChild(chip);
+        });
+      }
+
+      function updateSearchPreview(rawValue) {
+        const value = rawValue.trim().toUpperCase();
+        const result = stocks.find((item) => item.symbol === value) || suggestions.find((item) => item.symbol === value);
+        const box = document.getElementById("searchResult");
+
+        if (!value) {
+          box.innerHTML = `<div class="meta">Search suggestions appear here with ticker, company name, and exchange context.</div>`;
+          return;
+        }
+
+        if (result) {
+          box.innerHTML = `
+            <div class="mini-label">Result</div>
+            <div class="watch-top" style="margin-top:8px; align-items:end;">
+              <div>
+                <div class="search-value">${result.symbol}</div>
+                <div class="watch-name">${result.name} / ${result.market}</div>
+              </div>
+              <div>${formatMoney(result.price)}</div>
+            </div>
+          `;
+          return;
+        }
+
+        box.innerHTML = `<div class="meta">No direct match. In the real product this area would show normalized provider results.</div>`;
+      }
+
+      function addSymbol() {
+        const input = document.getElementById("searchInput");
+        const value = input.value.trim().toUpperCase();
+        const match = suggestions.find((item) => item.symbol === value);
+
+        if (!match || stocks.some((stock) => stock.symbol === value)) {
+          updateSearchPreview(value);
+          return;
+        }
+
+        stocks.push({
+          symbol: match.symbol,
+          name: match.name,
+          market: match.market,
+          price: match.price,
+          change: 0.67,
+          freshness: "fresh",
+          updated: "just now",
+          high: match.price + 7.5,
+          low: match.price - 9.1,
+          volume: "14.8M",
+          status: "Open",
+          series: {
+            "1D": [34, 37, 35, 39, 40, 44, 43, 45, 48, 50, 51, 54],
+            "1W": [28, 30, 31, 34, 36, 35, 38, 40, 43, 45, 47, 50],
+            "1M": [18, 19, 21, 24, 26, 29, 32, 36, 39, 42, 46, 49],
+          },
+        });
+
+        selectedSymbol = match.symbol;
+        input.value = "";
+        updateSearchPreview("");
+        renderWatchlist();
+        renderDetail();
+        renderAlerts();
+      }
+
+      function renderAlerts() {
+        const root = document.getElementById("alertList");
+        root.innerHTML = "";
+        const filtered = alerts.filter((alert) => alert.symbol === selectedSymbol).concat(alerts.filter((alert) => alert.symbol !== selectedSymbol));
+
+        filtered.slice(0, 3).forEach((alert) => {
+          const stock = getStock(alert.symbol);
+          const triggered = alert.direction === "above" ? stock.price >= alert.threshold : stock.price <= alert.threshold;
+          const row = document.createElement("div");
+          row.className = "alert-row";
+          row.innerHTML = `
+            <div>
+              <div class="mini-label">${alert.symbol}</div>
+              <div>${alert.direction} ${formatMoney(alert.threshold)}</div>
+            </div>
+            <div class="${triggered ? "down" : "fresh"}">${triggered ? "triggered" : alert.state}</div>
+          `;
+          root.appendChild(row);
+        });
+      }
+
+      function createAlert() {
+        const input = document.getElementById("alertInput");
+        const threshold = Number(input.value);
+        if (!threshold) return;
+        alerts.unshift({ symbol: selectedSymbol, direction: threshold >= getStock(selectedSymbol).price ? "above" : "below", threshold, state: "armed" });
+        input.value = "";
+        renderAlerts();
+      }
+
+      document.getElementById("searchInput").addEventListener("input", (event) => updateSearchPreview(event.target.value));
+      document.getElementById("addButton").addEventListener("click", addSymbol);
+      document.getElementById("alertButton").addEventListener("click", createAlert);
+      document.getElementById("searchInput").addEventListener("keydown", (event) => {
+        if (event.key === "Enter") addSymbol();
+      });
+      document.getElementById("alertInput").addEventListener("keydown", (event) => {
+        if (event.key === "Enter") createAlert();
+      });
+
+      renderWatchlist();
+      renderDetail();
+      renderSuggestions();
+      updateSearchPreview("");
+      renderAlerts();
+    </script>
+  </body>
+</html>
