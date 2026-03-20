@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { DashboardContent } from "@/components/dashboard-content";
 
 export default async function Dashboard() {
   const supabase = await createClient();
@@ -20,40 +20,95 @@ export default async function Dashboard() {
     .slice(0, 2);
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center gap-6 p-8">
-      <Card className="w-full max-w-md">
-        <CardHeader className="flex flex-row items-center gap-4">
-          <Avatar className="h-16 w-16">
-            <AvatarImage src={avatarUrl} alt={name} />
-            <AvatarFallback>{initials}</AvatarFallback>
-          </Avatar>
+    <main className="shell">
+      {/* Topbar: user card (left) + market overview (right) */}
+      <section className="topbar rise rise-delay-1">
+        <article className="section-card top-left">
           <div>
-            <CardTitle>{name}</CardTitle>
-            <p className="text-muted-foreground text-sm">{email}</p>
-          </div>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-4">
-          <p className="text-muted-foreground text-sm">
-            This is a protected page. Only authenticated users can see this.
-          </p>
-          <div className="flex gap-4">
-            <Link
-              href="/"
-              className="border-input bg-background hover:bg-accent hover:text-accent-foreground inline-flex h-10 items-center justify-center rounded-md border px-4 py-2 text-sm font-medium"
+            <div className="eyebrow flex items-center gap-2.5">
+              <span className="dot" />
+              StockAI / Calm market intelligence
+            </div>
+            <h1
+              className="mt-3.5 font-serif"
+              style={{
+                fontSize: "clamp(2.8rem, 6vw, 5rem)",
+                letterSpacing: "-0.05em",
+                maxWidth: "12ch",
+              }}
             >
-              Back to Home
-            </Link>
-            <form action="/auth/signout" method="post">
-              <button
-                type="submit"
-                className="bg-destructive text-destructive-foreground hover:bg-destructive/90 inline-flex h-10 items-center justify-center rounded-md px-4 py-2 text-sm font-medium"
-              >
-                Sign Out
-              </button>
-            </form>
+              Watch the market without the noise.
+            </h1>
           </div>
-        </CardContent>
-      </Card>
-    </div>
+
+          <div className="mt-6 flex items-end justify-between gap-6">
+            <div className="flex items-center gap-4">
+              <Avatar className="h-14 w-14">
+                <AvatarImage src={avatarUrl} alt={name} />
+                <AvatarFallback className="bg-[var(--green)] text-[var(--paper)] font-serif text-lg">
+                  {initials}
+                </AvatarFallback>
+              </Avatar>
+              <div>
+                <p className="font-serif text-xl font-semibold leading-tight">{name}</p>
+                <p className="mini-label mt-1">{email}</p>
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <Link
+                href="/dashboard/settings"
+                className="chip"
+              >
+                Impostazioni
+              </Link>
+              <Link href="/" className="chip">
+                Home
+              </Link>
+              <form action="/auth/signout" method="post">
+                <button
+                  type="submit"
+                  className="chip"
+                  style={{ borderColor: "var(--red)", color: "var(--red)" }}
+                >
+                  Sign Out
+                </button>
+              </form>
+            </div>
+          </div>
+        </article>
+
+        <aside className="top-right">
+          <div className="flex justify-between items-start gap-3">
+            <div>
+              <div className="mini-label">Session health</div>
+              <div
+                className="font-serif mt-2"
+                style={{ fontSize: "clamp(1.8rem, 3vw, 2.8rem)", lineHeight: 0.95, letterSpacing: "-0.04em" }}
+              >
+                Fresh data, explained.
+              </div>
+            </div>
+          </div>
+
+          <div className="scoreboard">
+            <div className="score">
+              <div className="mini-label">Tracked</div>
+              <strong className="font-mono">--</strong>
+            </div>
+            <div className="score">
+              <div className="mini-label">Alerts</div>
+              <strong className="font-mono">--</strong>
+            </div>
+            <div className="score">
+              <div className="mini-label">Status</div>
+              <strong className="font-mono text-sm">Live</strong>
+            </div>
+          </div>
+        </aside>
+      </section>
+
+      {/* Main content grid */}
+      <DashboardContent />
+    </main>
   );
 }

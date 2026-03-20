@@ -8,11 +8,113 @@ datasource db {
 }
 
 model User {
-  id         String   @id @default(uuid())
-  supabaseId String   @unique
-  email      String   @unique
-  name       String?
-  image      String?
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id                 String              @id @default(uuid())
+  supabaseId         String              @unique
+  email              String              @unique
+  name               String?
+  image              String?
+  emailNotifications Boolean             @default(true)
+  refreshInterval    Int                 @default(30)
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  watchlists         Watchlist[]
+  alerts             Alert[]
+  emailNotificationsSent EmailNotification[]
+  recentViews        RecentView[]
+}
+
+model Symbol {
+  id             String          @id @default(uuid())
+  ticker         String          @unique
+  name           String
+  exchange       String
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  watchlistItems WatchlistItem[]
+  alerts         Alert[]
+  quoteCache     QuoteCache?
+}
+
+model Watchlist {
+  id        String          @id @default(uuid())
+  name      String
+  userId    String
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+  user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items     WatchlistItem[]
+
+  @@index([userId])
+}
+
+model WatchlistItem {
+  id          String    @id @default(uuid())
+  watchlistId String
+  symbolId    String
+  sortOrder   Int       @default(0)
+  note        String?
+  createdAt   DateTime  @default(now())
+  watchlist   Watchlist @relation(fields: [watchlistId], references: [id], onDelete: Cascade)
+  symbol      Symbol    @relation(fields: [symbolId], references: [id], onDelete: Cascade)
+
+  @@unique([watchlistId, symbolId])
+  @@index([watchlistId])
+  @@index([symbolId])
+}
+
+model Alert {
+  id             String    @id @default(uuid())
+  userId         String
+  symbolId       String
+  direction      String
+  threshold      Float
+  status         String    @default("active")
+  triggeredAt    DateTime?
+  triggeredPrice Float?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  user               User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  symbol             Symbol              @relation(fields: [symbolId], references: [id], onDelete: Cascade)
+  emailNotification  EmailNotification?
+
+  @@index([userId])
+  @@index([symbolId])
+}
+
+model QuoteCache {
+  id            String   @id @default(uuid())
+  symbolId      String   @unique
+  price         Float
+  change        Float
+  changePercent Float
+  high          Float?
+  low           Float?
+  volume        Float?
+  timestamp     DateTime
+  updatedAt     DateTime @updatedAt
+  symbol        Symbol   @relation(fields: [symbolId], references: [id], onDelete: Cascade)
+}
+
+model EmailNotification {
+  id      String   @id @default(uuid())
+  userId  String
+  alertId String   @unique
+  sentAt  DateTime @default(now())
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  alert   Alert    @relation(fields: [alertId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([alertId])
+}
+
+model RecentView {
+  id       String   @id @default(uuid())
+  userId   String
+  symbol   String
+  name     String?
+  viewedAt DateTime @default(now()) @updatedAt
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, symbol])
+  @@index([userId, viewedAt(sort: Desc)])
 }
